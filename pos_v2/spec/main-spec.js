@@ -19,6 +19,199 @@ describe('pos', function () {
         };
     });
 
+    it('should parse tags correctly', function() {
+        var expectObject = [
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000003', count: 2},
+            {barcode: 'ITEM000005', count: 1},
+            {barcode: 'ITEM000005', count: 1},
+            {barcode: 'ITEM000005', count: 1}
+        ];
+
+        expect(parseTags(inputs)).toEqual(expectObject);
+    });
+
+    it('should merge items correctly', function () {
+        var originItems = [
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000001', count: 1},
+            {barcode: 'ITEM000003', count: 2},
+            {barcode: 'ITEM000005', count: 1},
+            {barcode: 'ITEM000005', count: 1},
+            {barcode: 'ITEM000005', count: 1}
+        ];
+
+        var expectObject = [
+            {barcode: 'ITEM000001', count: 5},
+            {barcode: 'ITEM000003', count: 2},
+            {barcode: 'ITEM000005', count: 3}
+        ];
+
+        expect(mergeItems(originItems)).toEqual(expectObject);
+    });
+
+    it('should build cartItems correctly', function () {
+        var mergedItems = [
+            {barcode: 'ITEM000001', count: 5},
+            {barcode: 'ITEM000003', count: 2}
+        ];
+
+        var expectObject = [
+            //new CartItem('ITEM000001', '雪碧', '瓶', 3.00, 5),
+            {
+                barcode: 'ITEM000001',
+                count: 5,
+                name: '雪碧',
+                unit: '瓶',
+                price: 3.00
+            },
+            {
+                barcode: 'ITEM000003',
+                count: 2,
+                name: '荔枝',
+                unit: '斤',
+                price: 15.00
+            }
+        ];
+
+        expect(buildOriginCartItems(mergedItems, allItems)).toEqual(expectObject);
+    });
+
+    it('should calculate free count correctly', function () {
+        var mergedItems = [
+            {barcode: 'ITEM000001', count: 5},
+            {barcode: 'ITEM000003', count: 2}
+        ];
+
+        var expectObject = [
+            {
+                barcode: 'ITEM000001',
+                count: 5,
+                name: '雪碧',
+                unit: '瓶',
+                price: 3.00,
+                freeCount: 1
+            },
+            {
+                barcode: 'ITEM000003',
+                count: 2,
+                name: '荔枝',
+                unit: '斤',
+                price: 15.00,
+                freeCount: 0
+            }
+        ];
+
+        expect(calculateFreeCount(mergedItems, loadPromotions())).toEqual(expectObject);
+    });
+
+    it('should calculate subTotal correctly', function () {
+        var items = [
+            {
+                barcode: 'ITEM000001',
+                count: 5,
+                name: '雪碧',
+                unit: '瓶',
+                price: 3.00,
+                freeCount: 1
+            },
+            {
+                barcode: 'ITEM000003',
+                count: 2,
+                name: '荔枝',
+                unit: '斤',
+                price: 15.00,
+                freeCount: 0
+            }
+        ];
+
+        var expectObject = [
+            {
+                barcode: 'ITEM000001',
+                count: 5,
+                name: '雪碧',
+                unit: '瓶',
+                price: 3.00,
+                freeCount: 1,
+                subTotal: 15.00,
+                actualSubTotal: 12.00
+            },
+            {
+                barcode: 'ITEM000003',
+                count: 2,
+                name: '荔枝',
+                unit: '斤',
+                price: 15.00,
+                freeCount: 0,
+                subTotal: 30.00,
+                actualSubTotal: 30.00
+            }
+        ];
+
+        expect(calculateSubTotal(items)).toEqual(expectObject);
+    });
+
+    it('should calculate correct total', function () {
+        var items = [
+            {
+                barcode: 'ITEM000001',
+                count: 5,
+                name: '雪碧',
+                unit: '瓶',
+                price: 3.00,
+                freeCount: 1,
+                subTotal: 15.00,
+                actualSubTotal: 12.00
+            },
+            {
+                barcode: 'ITEM000003',
+                count: 2,
+                name: '荔枝',
+                unit: '斤',
+                price: 15.00,
+                freeCount: 0,
+                subTotal: 30.00,
+                actualSubTotal: 30.00
+            }
+        ];
+
+        expect(calculateTotal(items)).toBe(42.00);
+    });
+
+    it('should calculate correct saved money', function () {
+        var items = [
+            {
+                barcode: 'ITEM000001',
+                count: 5,
+                name: '雪碧',
+                unit: '瓶',
+                price: 3.00,
+                freeCount: 1,
+                subTotal: 15.00,
+                actualSubTotal: 12.00
+            },
+            {
+                barcode: 'ITEM000003',
+                count: 2,
+                name: '荔枝',
+                unit: '斤',
+                price: 15.00,
+                freeCount: 0,
+                subTotal: 30.00,
+                actualSubTotal: 30.00
+            }
+        ];
+
+        expect(calculateSaveMoney(items)).toBe(3.00);
+    })
+
     it('should print correct text', function () {
 
         spyOn(console, 'log');

@@ -9,7 +9,7 @@ function parseTags(inputs) {
         item.count = parseInt(split[1]) || 1;
 
         result.push(item);
-    })
+    });
 
     return result;
 }
@@ -40,7 +40,7 @@ function buildOriginCartItems(mergedItems, allItems) {
         });
 
         return Object.assign({}, detailItem, mergedItem);
-    })
+    });
 }
 
 function calculateItemFreeCount(barcodes, item) {
